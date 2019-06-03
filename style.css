@@ -1,0 +1,74 @@
+
+
+/* Font, size, color */
+body {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #606c71;
+}
+
+/* Headers */
+h1,h2,h3,h4 {
+  color:#5F454B;
+}
+
+
+
+/* class r */
+.r,
+.cpp {
+  background-color: #F9F6FA;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+
+ code {
+    padding: 2px 4px;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    color: #567482 !important;
+    background-color: #F9F6FA;
+    border-radius: 0.3rem; 
+}
+
+
+/* Highlight Syntax */
+
+/* strings */ 
+code > span.st {
+  color: #8A3033;
+}
+
+/* comments */
+code > span.co {
+	color: #998;
+	font-style: italic;
+}
+
+/* functions */
+code > .kw {
+	color: #175287;
+	font-weight: bold;
+}
+
+/* operators */
+code > span.op {
+	color: #482b74;
+	font-weight: bold;
+}
+
+
+/*
+.main-container {
+  max-width:1300px !important;
+}
+
+div.tocify {
+  width: 30% !important;
+  max-width:316px !important;
+  
+}
+
+*/
+
+
