@@ -692,7 +692,9 @@ Our data frame has `r nrow(husports_data)` observations and 6 variables. In term
 <br>
 <center>Thank you!</center>
 <center>Juliana Vega Lacorte</center>
-<center><p style="font-size:14px;color:#98acb5">hello@jv-lacorte.de</p></center>
+<center>
+![](email.png){width=15%}
+</center>
 <br>
 
 ***
