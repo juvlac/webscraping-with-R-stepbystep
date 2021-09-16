@@ -409,9 +409,9 @@ husports &lt;-<span class="st"> </span><span class="kw">htmlParse</span>(<span c
 <hr />
 </div>
 <div id="extracting-information-from-the-index-page" class="section level2">
-<h2>1.4 Extracting information from the index page</h2>
+<h2>Extract information from the index page</h2>
 <div id="courses-in-the-sports-program" class="section level3">
-<h3>1.4.1 Courses in the sports program</h3>
+<h3>Courses in the sports program</h3>
 <p>We’d like to know what courses are offered as part of the university’s sports program. From inspecting the source code, we see that this information is located at the <code>&lt;a&gt;</code>nodes. To navigate through the nodes and extract their content we’ll use <code>xpathSApply()</code> from the XML package.</p>
 <br>
 <center>
@@ -483,7 +483,7 @@ sports_program[<span class="dv">1</span><span class="op">:</span><span class="dv
 <hr />
 </div>
 <div id="collecting-links-to-all-courses" class="section level3">
-<h3>1.4.2 Collecting links to all courses</h3>
+<h3>Collect the links to all courses</h3>
 <p>We have extracted the names of the courses from our parsed document <code>husports</code>. From the same document, we can also gather the links to each of these courses. We will need the links later on to access the pages, import the HTML files, and extract information about each course.</p>
 <p>The root purpose of <code>&lt;a&gt;</code> elements is to define links from one page to another. With this in mind, we can easily extract the <code>href</code> attribute from the selected nodes using <code>xmlGetAttr</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hrefs &lt;-<span class="st"> </span><span class="kw">xpathSApply</span>(
@@ -508,9 +508,9 @@ sports_program[<span class="dv">1</span><span class="op">:</span><span class="dv
 </div>
 </div>
 <div id="extracting-data-on-sport-courses" class="section level2">
-<h2>1.5 Extracting data on sport courses</h2>
+<h2>Extract data on sport courses</h2>
 <div id="importing-and-parsing-several-pages" class="section level3">
-<h3>1.5.1 Importing and parsing several pages</h3>
+<h3>Import and parse several pages with our own function</h3>
 <p>Our goal here is to write a function that automates the tasks of downloading and parsing HTML files from various pages. <strong>We create a function</strong>, <code>getCoursesHtml</code>, that will do the following:</p>
 <p><strong>1.</strong> <strong>Constructing URLs</strong> for every course page. If you take a look at the webpage, you’ll see that the URL of each course page is formed by attaching the names we stored in <code>hrefs</code> to our base URL <code>husports_url</code>. We can use <code>str_c()</code> from the stringr package to join the two character vectors into one:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str_c</span>(husports_url,hrefs[<span class="dv">3</span>])</code></pre></div>
@@ -553,8 +553,8 @@ sports_program[<span class="dv">1</span><span class="op">:</span><span class="dv
 <hr />
 </div>
 <div id="filtering-out-free-courses" class="section level3">
-<h3>1.5.2 Filtering out free courses</h3>
-<p>Not all courses listed on the sports program have price information; some of them are free of charge. Since we ultimately want to gather a data set where price information is available, it makes sense to remove unnecessary documents from <code>husports_htmls</code> before moving to the data collection. It will also make our scraping strategy easier to implement since we can standardize the extraction tasks.</p>
+<h3>Filter out free courses</h3>
+<p>Not all courses listed on the sports program have price information; some of them are free of charge. Since we ultimately want to gather a dataset where price information is available, it makes sense to remove unnecessary documents from <code>husports_htmls</code> before moving to the data collection. It will also make our scraping strategy easier to implement since we can standardize the extraction tasks.</p>
 <p>One way to identify what courses are free of charge is to test the existence of a specific node. In courses with no cost, the HTML code reveals that there’s a <code>&lt;span&gt;</code> node with attribute <code>title=&quot;free of charge&quot;</code>.</p>
 <p>So far, we have employed <code>xpathSApply()</code> to return nodes and their elements. But we can also use XPath expressions and square brackets <code>[]</code> for indexing nodes directly. For example, the following code would select the first <code>span</code> element from the node set in the document <em>“Windsurfen | Freies Surfen”</em>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">husports_htmls<span class="op">$</span><span class="st">`</span><span class="dt">Windsurfen | Freies Surfen</span><span class="st">`</span>[<span class="st">&quot;//span[@title='free of charge']&quot;</span>][<span class="dv">1</span>]</code></pre></div>
@@ -584,7 +584,7 @@ spanNodes_free &lt;-<span class="st"> </span><span class="kw">sapply</span>(span
 <hr />
 </div>
 <div id="creating-our-function-to-extract-data" class="section level3">
-<h3>1.5.3 Creating our function to extract data</h3>
+<h3>Create your function to extract the data</h3>
 <p>Now that we have 216 parsed documents ready to work with, it’s time to put all our searching and extracting techniques into a function and get the information we need. The mechanics of our function <code>getData()</code> work as follows:</p>
 <p><strong>1.</strong> <strong>Sport’s name, level, day, time, and period data</strong> are easy to extract. They are all found in nodes with a specific class. For example, <em>time</em> is part of a <code>&lt;td&gt;</code> node with a class named <code>bs_szeit</code>. This obviously calls for <code>xpathSApply()</code> and the extractor function <code>xmlValue</code>.</p>
 <p><strong>2.</strong> <strong>Prices</strong> are part of a <code>&lt;div&gt;</code> node with class <code>bs_tip</code>. There are four prices, one for each group segment (students, employees, alumni, external). The returned node set would look something like: “24/ 36/ 36/ 56 €24 EURfür Studierende36 ..”. If we extract the node’s value as it is, we’ll get a chunk of text that we don’t need. But if we do a bit of <strong>preprocessing along with the extraction</strong> , we can restrict the returned value to the characters before the currency symbol. To implement it, we create our own customized function and pass it to the <code>fun</code> argument in <code>xpathSApply()</code>. This way, we let our function <code>cleanPrice()</code> take care of text manipulation. Using the <code>stringr</code> package, text characters are extracted with <code>str_sub(string, start, end)</code>. Here, <code>start = 1</code>, and <code>end</code> should equal the position of the last character we want to extract. Since we don’t like to manually count characters’ positions, we’ll use <code>str_locate(string, pattern)</code> to track down the position of “€”, and then substract one from the result to avoid extracting the symbol. Note that <code>str_locate()</code> returns both start and end positions as a matrix, so that <code>str_locate(xmlValue(x), &quot;€&quot;)[,1]</code> is only selecting the “end” values.</p>
@@ -658,8 +658,8 @@ spanNodes_free &lt;-<span class="st"> </span><span class="kw">sapply</span>(span
 <hr />
 </div>
 <div id="organizing-the-data" class="section level3">
-<h3>1.5.4 Organizing the data</h3>
-<p>Having a bunch of data frames inside a list object is not the optimal way to organize our data. We would prefer to put all the data we collected into one big data frame. That’s why we’ll stack all the data frames using <code>bind_rows()</code> from the dplyr package:</p>
+<h3>Stack the data frames</h3>
+<p>Having a bunch of data frames inside a list object is not the optimal way to organize our data. Let's put all our data into one big data frame. We can stack all the data frames using <code>bind_rows()</code> from the dplyr package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
 
 husports_data &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(husports_data_ls)</code></pre></div>
@@ -681,7 +681,11 @@ husports_data &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(hu
 <p>You can save the data as RData or as csv file:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">save</span>(husports_data, <span class="dt">file =</span> <span class="st">&quot;husports.RData&quot;</span>)
 <span class="kw">save</span>(husports_data, <span class="dt">file =</span> <span class="st">&quot;husports.csv&quot;</span>)</code></pre></div>
-<p>Our online data collection is finally done and we have a wonderful data frame of 960 observations and 6 variables. Well, maybe it’s not that wonderful considering there are still variables that shouldn’t be of character type, prices should be split into four columns, and we need to deal with the mixed contents of the variable <em>Level</em>. Bottom line, there’s plenty to do in terms of data cleaning. But we’ll have to patiently wait for the next tutorial on that..</p>
+<p>Our data collection is completed and we have a wonderful data frame of 960 observations and 6 variables! Well, maybe it’s not that wonderful. There are still variables that shouldn’t be of character type, prices that should be split into four columns, and we have mixed contents in the variable <em>Level</em>. </p>
+<br>
+<p>So.. there’s plenty of data cleaning to do! But we'll take care of that another time. </p>
+<p>For now, go check the next tutorial on <a href="https://www.jv-lacorte.de/webscraping-tidyverse-stepbystep/UniSports.html">Web Scraping à la Tidyverse</a></p>
+<hr />
 <div id="references" class="section level1">
 <h1>References</h1>
 <ul>
