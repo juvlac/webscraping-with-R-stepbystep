@@ -8,4 +8,4 @@ In the first part, we'll cover things like HTML basics, the concept of parsing, 
 example towards automating the searching and extracting process. 
 In the second part, you'll see how we can replicate the same process and arrive at the same results using packages from the tidyverse.
 
-View it at https://www.jv-lacorte.de/webscrapingR-sports/UniSports.html
+View it at https://www.jv-lacorte.de/webscraping-with-R-stepbystep/UniSports.html
