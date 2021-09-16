@@ -354,13 +354,13 @@ div.tocify {
 
 
 <p><br> In real-world situations, jumping right into data analysis almost never happens –or at least it shouldn’t happen. First, we need to get the data ready, clean it from outliers, wrong data types, and the like. But even before that, we may need to collect the data ourselves. Apart from internal databases and all kinds of surveys, websites have become an important source of data.</p>
-<p>In this tutorial, I provide a practical example to help you see web scraping in action using R. I will describe the steps you need to extract data from the website of a university’s sports program. Our goal is to collect data on each course’s name, level, time, period, and prices.</p>
-<p>In the <a href="#web-scraping-with-the-xml-package">first part</a>, we’ll cover things like HTML basics, the concept of parsing, and XPath expressions, while working on our practical example towards automating the searching and extracting process. In the <a href="#web-scraping-a-la-tidyverse-rvest">second part</a>, you’ll see how we can replicate the same process and arrive at the same results using packages from the tidyverse.</p>
+<p>In this tutorial, you'll read a practical example on web scraping using R. You can follow the steps to extracting data from the website of a university’s sports program. Our goal is to collect data on each course’s name, level, time, period, and prices.</p>
+<p>We’ll cover some HTML basics, the concept of parsing, and XPath expressions, while working on our practical example towards automating the search-and-extract process. In a  <a href="https://www.jv-lacorte.de/webscraping-tidyverse-stepbystep/UniSports.html">second tutorial</a>, you’ll see how we can replicate the same process and arrive at the same results using modern packages from the tidyverse.</p>
 <p><br></p>
 <div id="web-scraping-with-the-xml-package" class="section level1">
-<h1>1. Web scraping with the XML package</h1>
+<h1>Web scraping with the XML package</h1>
 <div id="some-html-basics" class="section level2">
-<h2>1.1 Some HTML basics</h2>
+<h2>Some HTML basics</h2>
 <p>Our starting point is the webpage of the <a href="https://zeh2.zeh.hu-berlin.de/angebote/aktueller_zeitraum/">Humboldt University Sports program</a>. It is an index page with the list of sports courses offered for the current semester. The list is ordered alphabetically and it links to each course page with further information. We would like to collect data on level, time schedule, and prices for all sports courses.</p>
 <p>Behind the page in your browser, there is text written in HTML, the language for web content. What makes HTML so practical is that it uses a set of tags to give hierarchical order to pieces of text and to indicate how they should be displayed. This is a distinctive feature of markup languages, just like HTML (HyperText Markup Language). Thanks to how HTML is structured, we can work with a document as a tree representation of its elements, which makes it easier to query.</p>
 <p>To see the HTML document itself on your browser, right-click anywhere on the index page and select <em>View Page Source</em>. Some pages might display html code in a compact form with comments and formatting removed. We would then see that many lines of code are arranged horizontally instead of vertically. This process is known as minification. And although it brings us the enjoyment of speedy websites, it can make your job as online data collector a bit harder. Fortunately, we can use an HTML beautifier to make the code readable for us.</p>
@@ -376,7 +376,7 @@ div.tocify {
 <hr />
 </div>
 <div id="importing-html-files-into-r" class="section level2">
-<h2>1.2 Importing HTML files into R</h2>
+<h2>Import HTML files into R with getURL()</h2>
 <p>Let’s come back to our practical example and start by getting the list of sports courses from the index page. We’ll use <code>getURL()</code> from the RCurl package to access the website and bring the HTML document into R. In most cases, all we need to do is set the <code>url</code> argument to the web address. For example, the address of the index page stored in <code>husports_url</code>. In our case, we also need to add the argument <code>ssl.verifypeer = FALSE</code> to the function. This is because the website we are connecting to uses HTTPS, which is an encrypted connection. The encryption occurs under a SSL mechanism that first verifies the server’s certificate and then proceeds with the connection. Unfortunately, RCurl sometimes fails to validate a certificate (even if a certificate is valid) and throws an error. If we trust the server, we can set <em>ssl.verifypeer</em> to FALSE and skip the layer of security. Although this approach works safely here, be cautious when implementing it in any other cases.</p>
 <p>The imported html document is saved in <code>husports_html</code>. At this point, the document is just text and our object <code>husports_html</code> is of class character:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RCurl)
@@ -390,7 +390,7 @@ husports_html &lt;-<span class="st"> </span><span class="kw">getURL</span>(huspo
 <hr />
 </div>
 <div id="parsing-to-interpret-the-tree-structure" class="section level2">
-<h2>1.3 Parsing to interpret the tree structure</h2>
+<h2>Parse to interpret the tree structure with htmlParse()</h2>
 <p>Even if we have the html code in our <code>husports_html</code> object, we still cannot make use of its html structure to further extract document parts. R needs to understand the tree structure in an object that reflects the hierarchy of the html file. This transformation from merely reading html content to interpreting it is known as parsing, and to do the job we need, well, a parser.</p>
 <p>Let’s parse <code>husports_html</code> and store it in a new object called <code>husports</code> using <code>htmlParse()</code> from the XML package:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(XML)
